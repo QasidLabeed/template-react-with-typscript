@@ -1,19 +1,4 @@
-/*
- * App Actions
- *
- * Actions change things in your application
- * Since this boilerplate uses a uni-directional data flow, specifically redux,
- * we have these actions which are the only way your application interacts with
- * your application state. This guarantees that your state is up to date and nobody
- * messes it up weirdly somewhere.
- *
- * To add a new Action:
- * 1) Import your constant
- * 2) Add a function like this:
- *    export function yourAction(var) {
- *        return { type: YOUR_ACTION_CONSTANT, var: var }
- *    }
- */
+
 import * as authType from "./auth.types";
 import * as commonType from "../common/common.types";
 import axios from "axios";
@@ -37,14 +22,13 @@ export const signIn = (userData, errorCallback) => async (dispatch) => {
   });
   try {
     await axios
-      .post(`${baseUrl}/auth/signin`, userData)
+      .post(baseUrl + 'login', userData)
       .then((res) => {
-        console.log('res', res)
         dispatch({
           type: commonType.REMOVE_LOADER,
           payload: "SILoading",
         });
-        const { accessToken } = res.data?.data;
+        const { accessToken } = res.data;
         localStorage.setItem("jwtToken", accessToken);
         setAuthToken(accessToken);
 
@@ -55,28 +39,19 @@ export const signIn = (userData, errorCallback) => async (dispatch) => {
         dispatch(setCurrentUser(decodedUser));
       })
       .catch((err) => {
+
         const errors: Array<any> = [];
         dispatch({
           type: commonType.REMOVE_LOADER,
           payload: "SILoading",
         });
-        console.log("err.response", err?.response);
-        if (err?.response?.data?.errors[0]?.message?.includes('email') || err?.response?.data?.errors[0]?.message?.includes('Email')) {
-          errors.push(["email", err.response.data.errors[0].message]);
-        }
-        // if (err?.response?.data?.errors[0].message?.includes("password")) {
-        //   errors.push(["password", err.response.data.errors[0].message]);
-        // }
 
+        //Add Errors
+        errors.push(["error", err.response.data.error]);
+        return errorCallback("loginFormError", errors);
 
-        errorCallback("loginFormError", errors);
-        dispatch({
-          type: commonType.GET_ERRORS,
-          payload: null,
-        });
       });
   } catch (e) {
-    alert(e)
     toast.configure();
     toast("Backend Service unavailable", {
       position: toast.POSITION.TOP_RIGHT,

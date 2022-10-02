@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, } from "react";
 import axios from "axios";
 import config from "../../config/config";
 import { ToastContainer, toast } from "react-toastify";
@@ -9,13 +9,13 @@ import classnames from "classnames";
 import "react-toastify/dist/ReactToastify.css";
 import { isEmpty } from "lodash";
 import Spinner from "../../utils/Spinner";
-import { RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, Link } from 'react-router-dom';
 import { withRouter } from 'react-router-dom';
 
 
 
 interface IState {
-  email?: string
+  username?: string
   password?: string
   errorCallback?: Function
   loginFormError?: Array<any>
@@ -27,7 +27,8 @@ interface IProps {
   signIn?: any
   AS?: any
   LS?: any
-  parentHistory: RouteComponentProps["history"]
+  // parentHistory: RouteComponentProps["history"]
+  history: any
 }
 
 // type LoginProps = RouteComponentProps & IProps
@@ -38,7 +39,7 @@ class Login extends Component<IProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      email: "",
+      username: "",
       password: "",
       errorCallback: (key, value) => {
         this.setState({
@@ -48,40 +49,38 @@ class Login extends Component<IProps, IState> {
       loginFormError: []
     };
     this.onChange = this.onChange.bind(this);
-    this.submitForm = this.submitForm.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
   componentDidMount() {
-    // if (this.props.AS.isAuthenticated) {
-    //   this.props.parentHistory.push("/timeline");
-    // }
+    if (this.props.AS.isAuthenticated) {
+      this.props.history.push("/admin/dashboard");
+    }
   }
 
-  getSnapshotBeforeUpdate(prevProps) {
-    // if (this.props.AS.isAuthenticated) {
-    //   this.props.parentHistory.push("/timeline");
-    // }
+  componentDidUpdate(prevProps) {
+    if (this.props.AS.isAuthenticated) {
+      this.props.history.push("/admin/dashboard");
+    }
   }
 
   onChange(e) {
     this.setState({
       [e.target.name]: e.target.value,
-      [e.target.name.concat("error")]: "",
+      "loginFormError": [],
     });
   }
 
   //================================================  Login API integrate  =============
 
-  async submitForm(e) {
+  async onSubmit(e) {
     e.preventDefault();
     const data = this.state;
     e.preventDefault();
     console.log("onSubmit called");
     const userData = {
-      email: this.state.email,
+      username: this.state.username,
       password: this.state.password,
-      signinAuthType: "EMAIL",
-      role: "USER"
     };
 
     this.props.signIn(userData, this.state.errorCallback);
@@ -89,123 +88,103 @@ class Login extends Component<IProps, IState> {
 
   render() {
     return (
-      <>
-        <form onSubmit={this.submitForm}>
-          {/* <ToastContainer /> */}
-          <div className="row">
-            <div className="col-lg-12 no-pdd">
-              <div className="sn-field">
-                <input
-                  className={classnames("form-control", {
-                    "is-invalid": !isEmpty(
-                      this.state.loginFormError?.filter((item) =>
-                        item[0].includes("email") ? item : null
-                      )
-                    ),
-                  })}
-                  type="text"
-                  value={this.state.email}
-                  onChange={this.onChange}
-                  autoComplete="off"
-                  name="email"
-                  placeholder="Username"
-                />
-                <i className="fa fa-user"></i>
+      <div className="container mt--8 pb-5 mt-6">
+        <div className="row justify-content-center">
+          <div className="col-lg-5 col-md-7">
+            <div className="card bg-secondary border-0 mb-0">
 
-                {
-                  !isEmpty(
-                    this.state.loginFormError?.filter((item) =>
-                      item[0].includes("email")
-                        ? item
-                        : null
-                    )
-                  )
-                  &&
-                  <div className="invalid-feedback">
-                    {
-                      this.state.loginFormError?.filter((item) =>
-                        item[0].includes("email") ? item : null
-                      )[0][1]
-                    }
+              <div className="card-body px-lg-5 py-lg-5">
+                <div className="text-center text-muted mb-4">
+                  <small>Sign in with credentials</small>
+                </div>
+                <form
+                  onSubmit={this.onSubmit}
+                  className="needs-validation">
+                  <div className="form-group mb-3">
+                    <div className="input-group input-group-merge input-group-alternative ">
+                      <div className="input-group-prepend">
+                        <span className="input-group-text">
+                          <i className="ni ni-circle-08"></i>
+                        </span>
+                      </div>
+                      <input
+                        className={"form-control"}
+                        placeholder="Username"
+                        type="text"
+                        value={this.state.username}
+                        onChange={this.onChange}
+                        name="username"
+                      />
+                    </div>
                   </div>
-                }
+                  <div className="form-group">
+                    <div className="input-group input-group-merge input-group-alternative">
+                      <div className="input-group-prepend">
+                        <span className="input-group-text">
+                          <i className="ni ni-lock-circle-open"></i>
+                        </span>
+                      </div>
+                      <input
+                        className={classnames("form-control", {
+                          "is-invalid": !isEmpty(
+                            this.state.loginFormError!)
+                            ? true
+                            : null
+
+
+                        })}
+                        placeholder="Password"
+                        type="password"
+                        onChange={this.onChange}
+                        name="password"
+                        value={this.state.password}
+                        required
+                      />
+
+                    </div>
+                  </div>
+
+                  <div className="custom-control custom-control-alternative custom-checkbox">
+
+                  </div>
+                  <div className=" text-danger text-center">
+
+                    {
+                      this.state.loginFormError?.length != 0 ? this.state.loginFormError![0][1] : null
+                    }
+
+                  </div>
+                  <div className="text-center">
+                    <button type="submit" className="btn btn-purple my-4">
+                      Sign in
+
+                      {" "}
+                      {this.props.LS.waitingFor.includes(
+                        "SILoading"
+                      ) ? (
+                        <Spinner />
+                      ) : null}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
-            <div className="col-lg-12 no-pdd">
-              <div className="sn-field">
-                <input
-                  className={classnames("form-control", {
-                    "is-invalid": !isEmpty(
-                      this.state.loginFormError?.filter((item) =>
-                        item[0].includes("password") ? item : null
-                      )
-                    ),
-                  })}
-                  type="password"
-                  value={this.state.password}
-                  onChange={this.onChange}
-                  autoComplete="off"
-                  name="password"
-                  placeholder="Password"
-                />
-                <i className="fa fa-lock"></i>
+            <div className="row mt-3">
 
-                {
-                  !isEmpty(
-                    this.state.loginFormError?.filter((item) =>
-                      item[0].includes("password")
-                        ? item
-                        : null
-                    )
-                  )
-                  &&
-                  <div className="invalid-feedback">
-                    {
-                      this.state.loginFormError?.filter((item) =>
-                        item[0].includes("password") ? item : null
-                      )[0][1]
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-            {/* <div className="col-lg-12 no-pdd">
-                     <div className="checky-sec">
-                        <div className="fgt-sec">
-                           <input type="checkbox" name="cc" id="c1" />
-                           <label htmlFor="c1">
-                              <span></span>
-                           </label>
-                           <small>Remember me</small>
-                        </div>
-                        <a href="#" title="">Forgot Password?</a>
-                     </div>
-                  </div> */}
-            <div className="col-lg-12 no-pdd">
-
-              <button type="submit" className={classnames((!this.state.email && this.state.password) ? "disabled_form" : "")}
-                disabled={!this.state.email && !this.state.password}>
-
-                {this.props.LS.waitingFor.includes(
-                  "SILoading"
-                ) ? (
-                  <Spinner />
-                ) : null}
-                {"  "}
-                Sign in
-              </button>
-
+              {/* //FORGOT PASSWORD */}
+              {/* <div className="col-6">
+                <Link to="/auth/login" class=" text-light">
+                  <small>Forgot password?</small>
+                </Link>
+              </div> */}
+              {/* CREATE NEW ACCOUNT */}
+              {/* <div class="col-6 text-right">
+                                    <a href="#img" class="text-light"><small>Create new account</small></a>
+                                </div> */}
             </div>
           </div>
-        </form>
-        {/* <div className="login-resources">
-               <h4>Login Via Social Account</h4>
-               <ul>
-                  <li><a href="#" title="" className="fb"><i className="fa fa-facebook"></i>Login Via Facebook</a></li>
-                  <li><a href="#" title="" className="tw"><i className="fa fa-twitter"></i>Login Via Twitter</a></li>
-               </ul>
-            </div> */}
-      </>
+        </div>
+      </div >
     );
   }
 }

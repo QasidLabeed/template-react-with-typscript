@@ -1,16 +1,19 @@
 import { Route, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
+import Admin from "../layouts/Admin";
 
 const PrivateRoute = ({ component: Component, auth, ...rest }) => (
   <Route
     render={
       (props) => {
-        if (auth.isAuthenticated) {
-          return <Component {...props} />
-        } else {
-          return <Redirect to="/auth/login" />;
-        }
+        //TODO: Reenable after auth flow integration
+        // if (auth.isAuthenticated) {
+        //   return <Admin {...props} />
+        // } else {
+        //   return <Redirect to="/auth/login" />;
+        // }
+        return <Admin {...props} />
       }
     }
     {...rest}

@@ -1,7 +1,9 @@
-import "./App.css";
+import "./assets/vendor/nucleo/css/nucleo.css";
+import "./assets/vendor/@fortawesome/fontawesome-free/css/all.min.css";
+import "./assets/scss/argon-dashboard-react.scss";
 //==================================  Import all dependencies  ============================
 
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import config from "./config/config";
 
 //================================  Import folders  ===========================
@@ -15,6 +17,8 @@ import setAuthToken from "./utils/SetAuthToken";
 import jwt_decode from "jwt-decode";
 import { setCurrentUser } from "./modules/auth/auth.action";
 import { isEmpty } from "lodash";
+import pagesLogin from "./modules/auth/pages.login";
+import AuthLayout from "./layouts/Auth";
 
 // Check for token
 if (localStorage.jwtToken) {
@@ -39,15 +43,19 @@ if (localStorage.jwtToken) {
 function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter>
+      <BrowserRouter >
         <div>
           {/* <Menu /> */}
           <Switch>
 
-            <Route
+            {/* <Route
               path={`${config.baseUrl}auth`}
-              component={login_signup}
-            />
+              component={pagesLogin}
+            /> */}
+            <PrivateRoute path="/admin" />
+            <Route path="/auth" render={props => <AuthLayout {...props} />} />
+
+            <Redirect from="/" to="/admin/dashboard" />
 
           </Switch>
         </div>

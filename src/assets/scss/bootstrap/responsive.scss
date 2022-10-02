@@ -1,0 +1,32 @@
+$tablet: 768px;
+$portrate: 600;
+$desktop: 992px;
+$mobile:480px;
+$menu:1264px;
+
+// mobile screens breakpoint mixin //
+@mixin mobile {
+  @media only screen and (min-width: #{$mobile}) {
+    @content;
+  }
+}
+@mixin portrate{
+  @media only screen and (min-width: #{$portrate}){
+    @content;
+  }
+}
+@mixin tablet {
+  @media only screen and (min-width: #{$tablet}) {
+    @content;
+  }
+}
+@mixin desktop {
+  @media only screen and (min-width: #{$desktop}) {
+    @content;
+  }
+}
+@mixin menu{
+  @media only screen and (min-width: #{$menu}) {
+    @content;
+  }
+}
